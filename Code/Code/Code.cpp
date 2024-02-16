@@ -6,49 +6,49 @@ int IteratuionsCounter = 0;
 
 int board[500][500];
 
-void setQueen(int row, int column, int n)
+void setQueen(int row, int column, int boardSize)
 {
-    for (int x = 0; x < n; ++x)
+    for (int x = 0; x < boardSize; ++x)
     {
-        ++board[x][column];
-        ++board[row][x];
+        board[x][column]++;
+        board[row][x]++;
 
         int diagonal = column - row + x;
 
-        if (diagonal >= 0 && diagonal < n)
-            ++board[x][diagonal];
+        if (diagonal >= 0 && diagonal < boardSize)
+            board[x][diagonal]++;
 
         diagonal = column + row - x;
 
-        if (diagonal >= 0 && diagonal < n)
-            ++board[x][diagonal];
+        if (diagonal >= 0 && diagonal < boardSize)
+            board[x][diagonal]++;
     }
 
     board[row][column] = -1;
 }
 
-void removeQueen(int row, int column, int n)
+void removeQueen(int row, int column, int boardSize)
 {
-    for (int x = 0; x < n; ++x)
+    for (int x = 0; x < boardSize; ++x)
     {
-        --board[x][column];
-        --board[row][x];
+        board[x][column]--;
+        board[row][x]--;
 
         int diagonal = column - row + x;
 
-        if (diagonal >= 0 && diagonal < n)
-            --board[x][diagonal];
+        if (diagonal >= 0 && diagonal < boardSize)
+            board[x][diagonal]--;
 
         diagonal = column + row - x;
 
-        if (diagonal >= 0 && diagonal < n)
-            --board[x][diagonal];
+        if (diagonal >= 0 && diagonal < boardSize)
+            board[x][diagonal]--;
     }
 
     board[row][column] = 0;
 }
 
-bool safeCheck(int *Arr, int size, bool shouldChangeArray = false) 
+bool safeCheck(int *Arr, int size) 
 {
     bool flag = false;
     int counter = 0;
@@ -78,10 +78,15 @@ bool PutQueens(int row, int n, int rootId)
 
     while (!result && safeCheck(&availablePlaces[0], n))
     {
-        int place = availablePlaces[rand() % n];
+        int place;
 
-        while (place == -1)
+        do
+        {
             place = availablePlaces[rand() % n];
+        } 
+        while (place == -1);
+        
+
 
         cout << "Случайным образом выбрана позиция для постановки новой королевы: " << row + 1 << ":" << place + 1 << endl;
 
@@ -89,7 +94,7 @@ bool PutQueens(int row, int n, int rootId)
 
         if (row == (n - 1))
         {
-            cout << "Все " << n << " королев были успешно раставленны!" << endl << endl;
+            cout << endl <<"Все " << n << " королев были успешно раставленны!" << endl << endl;
             result = true;
         }
         else
@@ -120,26 +125,36 @@ int main()
 
     int n;
 
+    cout << "Введите число королев и размер доски одни числом" << endl;
+
     cin >> n;
 
     if (n < 4)
+    {
+        cout << "Размер доски и кол-во королев должно быть больше ли равно 4" << endl;
         return 0;
+    }
 
-    for (int i = 0; i < n; ++i)
-        for (int j = 0; j < n; ++j)
-            board[i][j] = 0;
+    cout << endl << "---------------------------" << endl;
+
+    for (int row = 0; row < n; ++row)
+        for (int square = 0; square < n; square++)
+            board[row][square] = 0;
 
     PutQueens(0, n, 0);
 
-    for (int i = 0; i < n; ++i)
+    for (int row = 0; row < n; ++row)
     {
-        for (int j = 0; j < n; ++j)
+        for (int square = 0; square < n; square++)
         {
-            if (board[i][j] == -1)
+            if (board[row][square] == -1)
                 cout << "[]";
             else
                 cout << ". ";
         }
+
         cout << endl;
     }
+
+    cout << endl << "Всего потребовалось итераций: " << IteratuionsCounter << endl;
 }
