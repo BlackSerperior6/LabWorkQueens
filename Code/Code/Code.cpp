@@ -2,33 +2,38 @@
 
 using namespace std;
 
-int IteratuionsCounter = 0;
+int IterationsCounter = 0; //Общий счетчик итераций рекурсии
 
-int board[500][500];
+int board[500][500]; //Матрица, изображающая доску
 
-void setQueen(int row, int column, int boardSize)
+void setQueen(int row, int column, int boardSize) //Метод для постановки королевы в клетку. Принимает в себя: строку и ряд клетки, а также размер доски
 {
-    for (int x = 0; x < boardSize; ++x)
+    for (int x = 0; x < boardSize; ++x) //Запускаем цикл
     {
-        board[x][column]++;
+        //Прибавляем единицу к клеткам, которые бьет королева (тем самым получая, сколько королев бьют эту клетку)
+        board[x][column]++; 
         board[row][x]++;
 
+        //Получаем клетку по диагонали
         int diagonal = column - row + x;
 
+        //Если диагональная клетка находится в пределах доски, то пометить её как ту, которую может удраить королева
         if (diagonal >= 0 && diagonal < boardSize)
             board[x][diagonal]++;
 
+        //Аналогично логике выше
         diagonal = column + row - x;
 
         if (diagonal >= 0 && diagonal < boardSize)
             board[x][diagonal]++;
     }
 
-    board[row][column] = -1;
+    board[row][column] = -1; //Саму клетку королевы пометим, как равную -1
 }
 
-void removeQueen(int row, int column, int boardSize)
+void removeQueen(int row, int column, int boardSize) //Метод для снятия королевы с клетки. Принимает в себя: строку и ряд клектки, а также размер доски
 {
+    //Логика работы функции абсолютно аналогично логике работы функции выше, за исключением того, что здесь мы убавляем значения, а не прибавляем
     for (int x = 0; x < boardSize; ++x)
     {
         board[x][column]--;
@@ -45,44 +50,44 @@ void removeQueen(int row, int column, int boardSize)
             board[x][diagonal]--;
     }
 
-    board[row][column] = 0;
+    board[row][column] = 0; //Саму клетку королевы пометим, как 0 (полностью свободная)
 }
 
-bool safeCheck(int *Arr, int size) 
+bool safeCheck(int *Arr, int size) //Функция для проверки массива на наличие элементов, не равных -1 (где в данном случае -1 обозначает клетку, в которую нельзя ставить королеву)
 {
-    bool flag = false;
-    int counter = 0;
+    bool flag = false; //Переменная флага
+    int counter = 0; //Переменная счетчика
 
-    while (!flag && counter < size)
+    while (!flag && counter < size) //Пока не нашли не -1 элемента и приэтом не дошли до конца массива
     {
-        flag = Arr[counter] != -1;
-        counter++;
+        flag = Arr[counter] != -1; //Присваимаем флагу значение того, не равен ли элемент по счетчику -1
+        counter++; //Прибвляем счетчик
     }
 
-    return flag;
+    return flag; //Возвращаем флаг
 }
 
-bool PutQueens(int row, int n, int rootId) 
+bool PutQueens(int row, int n, int rootId) //Рекурсивная функция для решения задачи. Принимает в себя текущий ряд, размеры доски/кол-во королев, а также id родительской итерации (для первой итерации равной 0)
 {
-    int id = ++IteratuionsCounter;
+    int id = ++IterationsCounter; //Присваем итерации рекурсии id номер
 
     cout << "Создание новой итерации с id = " << id << ", ряд: " << row + 1 << ", id родительской итерации: " << rootId << endl << endl;
 
-	bool result = false;
-    bool flag = false;
+	bool result = false; //Флаг того, смогли ли мы успешно поставить королев на всей доске 
+    bool flag = false; //Флажок, который обозначает, провалилась ли попытка поставить королев из - за того, что небыло свободных мест на последующих рядах (дургой способ провалиться - в принципе не было свободных мест на ряде с самого начала)
 
-    int availablePlaces[500];
+    int availablePlaces[500]; //Массив индексов доступных клеток, на которые можно поставить королеву
 
     for (int i = 0; i < n; i++)
-        availablePlaces[i] = board[row][i] == 0 ? i : -1;
+        availablePlaces[i] = board[row][i] == 0 ? i : -1; //Заполняем массив выше. Если клетка пустая, то записываем её индекс, иначе записываем -1.
 
-    while (!result && safeCheck(&availablePlaces[0], n))
+    while (!result && safeCheck(&availablePlaces[0], n)) //Цикл, который будет работать до тех пор, пока не поставлены королев на всей доске и пока есть свободные места в ряду
     {
-        int place;
+        int place; //Переменная, хранящая в себе индекс выьранной клетки
 
         do
         {
-            place = availablePlaces[rand() % n];
+            place = availablePlaces[rand() % n]; //Через цикл получаем случайную свободную клетку
         } 
         while (place == -1);
         
@@ -90,46 +95,46 @@ bool PutQueens(int row, int n, int rootId)
 
         cout << "Случайным образом выбрана позиция для постановки новой королевы: " << row + 1 << ":" << place + 1 << endl;
 
-        setQueen(row, place, n);
+        setQueen(row, place, n); //Ставим королеву на выбранную клетку
 
-        if (row == (n - 1))
+        if (row == (n - 1)) //Если мы на последнем ряду, что присваиваем результату значение true и выходим из рекурсии
         {
-            cout << endl <<"Все " << n << " королев были успешно раставленны!" << endl << endl;
+            cout << endl <<"Все " << n << " королев были успешно раставлены!" << endl << endl;
             result = true;
         }
         else
         {
             cout << "Переход на следующий ряд, создание новой итерации!" << endl << "---------------------------" << endl;
-            result = PutQueens(row + 1, n, id);
+            result = PutQueens(row + 1, n, id); //Иначе переходим на следующий ряд
         }
 
-        if (!result)
+        if (!result) //Если не получилось расставить всех королев на доске при выбранной клетке, то
         {
             flag = true;
             cout << "Не удалось успешно поставить королев в последующие ряды при условии, что в ряде " << row + 1 << " королева стоит на " << place + 1 << " месте" << ". Пытаемся выбрать новое место" << endl << "---------------------------" << endl;
-            removeQueen(row, place, n);
-            availablePlaces[place] = -1;
+            removeQueen(row, place, n); //Убираем королеву с этой клетки
+            availablePlaces[place] = -1; //Помечаем это место как то, в которое нельзя ставить королеву
         }
     }
 
     if (!result && !flag)
-        cout << "Не удалось успешно поставить королев в ряд " << row + 1 << ". Возвращаемся на предыдущий ряд " << "(" << row << ")" << " (id, в который вернемся:  " << rootId << ")" << endl << "---------------------------" << endl;
+        cout << "Не удалось успешно поставить королеву в ряд " << row + 1 << ". Возвращаемся на предыдущий ряд " << "(" << row << ")" << " (id, в который вернемся:  " << rootId << ")" << endl << "---------------------------" << endl;
 
-    return result;
+    return result; //Возвращаем результат
 }
 
 int main()
 {
-    setlocale(LC_ALL, "RUS");
-    srand(time(0));
+    setlocale(LC_ALL, "RUS"); //Подключаем русский язык
+    srand(time(0)); //Инициализируем генератор случайных чисел
 
     int n;
 
-    cout << "Введите число королев и размер доски одни числом" << endl;
+    cout << "Введите число королев и размер доски одним числом" << endl;
 
-    cin >> n;
-
-    if (n < 4)
+    cin >> n; //Получаем размер доски и кол-во королев от пользователей
+     
+    if (n < 4) //Проверка на валиденость. Для единицы есть одно тривиальное решение, нету смысла его выводить. Для 2 и 3 решений нет, поэтому ввод пользователя должен быть больше или равен 4
     {
         cout << "Размер доски и кол-во королев должно быть больше ли равно 4" << endl;
         return 0;
@@ -139,15 +144,15 @@ int main()
 
     for (int row = 0; row < n; ++row)
         for (int square = 0; square < n; square++)
-            board[row][square] = 0;
+            board[row][square] = 0; //Заполняем доску пустышками
 
-    PutQueens(0, n, 0);
+    PutQueens(0, n, 0); //Запускаем рекурсивную функцию
 
-    for (int row = 0; row < n; ++row)
+    for (int row = 0; row < n; ++row) //Через вложенные циклы рисуем в консоли доску
     {
         for (int square = 0; square < n; square++)
         {
-            if (board[row][square] == -1)
+            if (board[row][square] == -1) //-1 обозначает собой королеву
                 cout << "[]";
             else
                 cout << ". ";
@@ -156,5 +161,7 @@ int main()
         cout << endl;
     }
 
-    cout << endl << "Всего потребовалось итераций: " << IteratuionsCounter << endl;
+    cout << endl << endl << "[] - королевы" << endl << ". - свободные клетки" << endl;
+
+    cout << endl << "Всего потребовалось итераций: " << IterationsCounter << endl;
 }
